@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ca" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examen Oficial de la Taula Periòdica - Química</title>
+  
+  <!-- Favicon personalitzat -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              900: '#0c4a6e',
+            }
+          },
+          gridTemplateColumns: {
+            '18': 'repeat(18, minmax(0, 1fr))',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- KaTeX per a notació científica i matemàtica -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <style>
+    .pt-grid {
+      display: grid;
+      grid-template-columns: repeat(18, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .element-cell {
+      aspect-ratio: 0.95;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      user-select: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen font-sans flex flex-col justify-between transition-colors duration-200">
+
+  <!-- CAPÇALERA -->
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-3 shadow-sm transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+      
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 rounded-lg">
+          <svg class="w-6 h-6 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-sky-700 dark:text-sky-400 leading-tight">Examen Oficial de Química</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Avaluació de Nomenclatura i Símbols (77 Elements)</p>
+        </div>
+      </div>
+
+      <!-- DADES DE L'ALUMNE / INDICADOR DE PART -->
+      <div class="flex items-center gap-3 text-xs">
+        <div class="bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-medium">
+          <span class="text-slate-500 dark:text-slate-400">Alumne/a:</span>
+          <span id="header-student-name" class="font-bold text-sky-700 dark:text-sky-400 ml-1">Sense identificar</span>
+        </div>
+        <div class="bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 px-3 py-1.5 rounded-lg font-bold" id="exam-part-badge">
+          Part 1: Símbol ➔ Nom
+        </div>
+      </div>
+
+      <!-- MARCADOR DE PROGRÉS I ACCIONS -->
+      <div class="flex items-center gap-3">
+        
+        <!-- COMMUTADOR TEMA -->
+        <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700" title="Canviar tema lluminós/fosc">
+          <svg id="theme-toggle-dark-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"></path>
+          </svg>
+          <svg id="theme-toggle-light-icon" class="hidden w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+          </svg>
+        </button>
+
+        <!-- PROGRÉS (SENSE MOSTRAR ENCERTS/ERRADES) -->
+        <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+          <span class="text-slate-500 dark:text-slate-400">Respostes:</span>
+          <span id="answered-count-display" class="font-bold text-sky-600 dark:text-sky-400">0 / 77</span>
+        </div>
+
+        <!-- BOTÓ FINALITZAR EXAMEN -->
+        <button onclick="openConfirmFinishModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-600 px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span>Finalitzar Examen</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- PANELL DE PREGUNTA I INTERACCIÓ -->
+  <main class="max-w-7xl mx-auto w-full px-3 py-3 flex-grow flex flex-col gap-3">
+    
+    <div id="question-card" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-md transition-all">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <!-- Targeta de Pregunta -->
+        <div class="flex items-center gap-4 w-full md:w-auto">
+          <div id="target-display-box" class="w-20 h-20 bg-sky-50 dark:bg-sky-950/50 border-2 border-sky-300 dark:border-sky-700 rounded-xl flex flex-col items-center justify-center shadow-sm relative">
+            <span id="target-z-katex" class="absolute top-1 left-2 text-[10px] text-sky-700 dark:text-sky-300 font-mono"></span>
+            <span id="target-main-text" class="text-2xl font-black text-slate-900 dark:text-white">-</span>
+          </div>
+          <div>
+            <span id="question-prompt-type" class="text-xs uppercase tracking-wider text-sky-600 dark:text-sky-400 font-semibold">Examen: Símbol ➔ Nom</span>
+            <h2 id="question-text" class="text-lg font-bold text-slate-900 dark:text-white">Carregant pregunta...</h2>
+            <p id="group-period-hint" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Ubicació: -</p>
+          </div>
+        </div>
+
+        <!-- Formulari d'Entrada i Navegació -->
+        <div id="interaction-form" class="w-full md:w-auto flex-1 max-w-md flex flex-col gap-2">
+          <div class="flex gap-2">
+            <input type="text" id="user-input" placeholder="Escriu la teva resposta..." autocomplete="off" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-sky-600 focus:ring-1 focus:ring-sky-600 font-medium text-sm transition-all placeholder-slate-400 dark:placeholder-slate-500">
+          </div>
+
+          <!-- BOTONS DE NAVEGACIÓ LLIURE -->
+          <div class="flex justify-between items-center gap-2 pt-1">
+            <button id="btn-prev" onclick="navigateQuestion(-1)" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold px-4 py-2 rounded-lg text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1">
+              <span>← Anterior</span>
+            </button>
+            <span id="question-index-indicator" class="text-xs text-slate-500 dark:text-slate-400 font-mono">Pregunta 1 de 77</span>
+            <button id="btn-next" onclick="navigateQuestion(1)" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-4 py-2 rounded-lg text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1">
+              <span>Següent →</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAULA PERIÒDICA INTERACTIVA DE 18 COLUMNES -->
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 shadow-md overflow-x-auto custom-scrollbar transition-colors">
+      <div class="pt-grid min-w-[850px] text-center text-[10px] text-slate-500 dark:text-slate-400 font-mono mb-1">
+        <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>
+        <div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
+        <div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div>
+      </div>
+      <div id="periodic-table-grid" class="pt-grid min-w-[850px]"></div>
+    </div>
+
+  </main>
+
+  <!-- 1. MODAL INICIAL D'IDENTIFICACIÓ (OBLIGATÒRIA) -->
+  <div id="start-modal" class="fixed inset-0 bg-slate-900/80 dark:bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 border border-sky-300 dark:border-sky-700 rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="text-center border-b border-slate-200 dark:border-slate-700 pb-3">
+        <div class="inline-flex p-3 bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 rounded-full mb-2">
+          <svg class="w-8 h-8 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+        </div>
+        <h3 class="text-lg font-black text-slate-900 dark:text-white">Inici de l'Examen Oficial</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Identifica't i introdueix el codi d'aula proporcionat pel professorat.</p>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label for="start-student-name" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nom i Cognoms de l'alumne/a:</label>
+          <input type="text" id="start-student-name" placeholder="Ex: Maria Garcia López" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-sky-600 focus:ring-1 focus:ring-sky-600 rounded-lg px-3 py-2 text-xs font-medium text-slate-900 dark:text-white">
+        </div>
+        <div>
+          <label for="start-exam-code" class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Codi d'aula (4 xifres):</label>
+          <input type="text" id="start-exam-code" maxlength="4" placeholder="Ex: 8492" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-sky-600 focus:ring-1 focus:ring-sky-600 rounded-lg px-3 py-2 text-xs font-bold text-center tracking-widest text-sky-600 dark:text-sky-400">
+        </div>
+      </div>
+
+      <button onclick="submitStartModal()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-lg text-xs transition-colors shadow-md mt-2">
+        Començar Examen (Part 1: Símbol ➔ Nom)
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. MODAL CONFIRMACIÓ DE FINALITZACIÓ (SENSE MOSTRAR LA NOTA) -->
+  <div id="confirm-finish-modal" class="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+      <div class="text-center border-b border-slate-200 dark:border-slate-700 pb-3">
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Vols finalitzar aquesta prova?</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="confirm-modal-part-label">Part 1: Símbol ➔ Nom</p>
+      </div>
+
+      <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-center space-y-2">
+        <p class="font-bold text-slate-800 dark:text-slate-200" id="confirm-answered-text">Has respost 0 de 77 preguntes.</p>
+        <p class="text-amber-600 dark:text-amber-400 font-medium hidden" id="confirm-warning-text">Atenció: Et queden preguntes sense contestar. Pots tornar enrere per completar-les.</p>
+      </div>
+
+      <div id="send-status-box" class="hidden p-3 rounded-lg text-xs font-semibold text-center"></div>
+
+      <div class="flex gap-3 justify-end pt-2">
+        <button onclick="closeConfirmFinishModal()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors">
+          Tornar a l'Examen
+        </button>
+        <button id="btn-submit-part" onclick="submitCurrentPart()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg text-xs font-semibold transition-colors shadow-sm">
+          Enviar Prova Definitivament
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MODAL DE TRANSICIÓ DE PART 1 A PART 2 -->
+  <div id="part1-done-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 border border-emerald-200 dark:border-emerald-800 rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 text-center">
+      <div class="inline-flex p-3 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-full mx-auto">
+        <svg class="w-8 h-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+      </div>
+      <h3 class="text-lg font-black text-slate-900 dark:text-white">Part 1 Enviada amb Èxit!</h3>
+      <p class="text-xs text-slate-600 dark:text-slate-300">
+        Les respostes de la prova <strong>Símbol ➔ Nom</strong> s'han registrat correctament al servidor del professorat.
+      </p>
+      <p class="text-xs font-semibold text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 p-3 rounded-lg border border-sky-200 dark:border-sky-800">
+        Ara iniciaràs la Part 2: <strong>Nom ➔ Símbol</strong>.
+      </p>
+
+      <button onclick="startPart2()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 rounded-lg text-xs transition-colors shadow-md mt-2">
+        Començar Part 2 (Nom ➔ Símbol)
+      </button>
+    </div>
+  </div>
+
+  <!-- 4. MODAL INFORME FINAL (APAREIX NOMÉS EN ENVIAR LA PART 2) -->
+  <div id="final-results-modal" class="fixed inset-0 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      
+      <div class="text-center border-b border-slate-200 dark:border-slate-700 pb-3">
+        <h3 class="text-xl font-black text-slate-900 dark:text-white">Informe Definitiu de l'Examen</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="final-student-info"></p>
+      </div>
+
+      <!-- DESGLOSSAT DE RESULTATS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+        <!-- PART 1 -->
+        <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+          <h4 class="font-bold text-sky-700 dark:text-sky-400 border-b border-slate-200 dark:border-slate-700 pb-1">Part 1: Símbol ➔ Nom</h4>
+          <div class="flex justify-between"><span>Encerts:</span><strong id="p1-correct" class="text-emerald-600 dark:text-emerald-400">0 / 77</strong></div>
+          <div class="flex justify-between"><span>Errors:</span><strong id="p1-incorrect" class="text-rose-600 dark:text-rose-400">0</strong></div>
+          <div class="flex justify-between"><span>Precisió:</span><strong id="p1-accuracy">0%</strong></div>
+          <div class="flex justify-between pt-1 border-t border-slate-200 dark:border-slate-700"><span class="font-bold">Nota Part 1:</span><strong id="p1-score" class="text-sky-600 dark:text-sky-400 font-extrabold text-sm">0,00 / 10</strong></div>
+        </div>
+
+        <!-- PART 2 -->
+        <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
+          <h4 class="font-bold text-sky-700 dark:text-sky-400 border-b border-slate-200 dark:border-slate-700 pb-1">Part 2: Nom ➔ Símbol</h4>
+          <div class="flex justify-between"><span>Encerts:</span><strong id="p2-correct" class="text-emerald-600 dark:text-emerald-400">0 / 77</strong></div>
+          <div class="flex justify-between"><span>Errors:</span><strong id="p2-incorrect" class="text-rose-600 dark:text-rose-400">0</strong></div>
+          <div class="flex justify-between"><span>Precisió:</span><strong id="p2-accuracy">0%</strong></div>
+          <div class="flex justify-between pt-1 border-t border-slate-200 dark:border-slate-700"><span class="font-bold">Nota Part 2:</span><strong id="p2-score" class="text-sky-600 dark:text-sky-400 font-extrabold text-sm">0,00 / 10</strong></div>
+        </div>
+      </div>
+
+      <!-- NOTA GLOBAL COMBINADA -->
+      <div class="bg-sky-50 dark:bg-sky-950/60 p-4 rounded-xl border border-sky-200 dark:border-sky-800 text-center space-y-1">
+        <span class="text-xs uppercase font-bold text-sky-700 dark:text-sky-300 tracking-wider">Qualificació Global Final (Mitjana / 10)</span>
+        <div id="global-final-score" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">0,00 / 10</div>
+      </div>
+
+      <!-- HISTORIAL D'ERRADES COMBINAT -->
+      <div class="space-y-2 text-xs">
+        <h4 class="font-bold text-slate-800 dark:text-slate-200">Llistat d'Errades de l'Examen:</h4>
+        <div id="final-mistakes-container" class="bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700 max-h-48 overflow-y-auto space-y-2 custom-scrollbar"></div>
+      </div>
+
+      <div class="flex justify-center pt-2">
+        <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-2.5 rounded-lg text-xs transition-colors">
+          Tancar i Finalitzar Sessió
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PEU DE PÀGINA -->
+  <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-2 px-4 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
+    Aplicació Educativa de Química — Versió Examen Oficial amb Enviament Google Suite
+  </footer>
+
+  <!-- LÒGICA EN JAVASCRIPT -->
+  <script>
+    const GOOGLE_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzygUGoYMDsYEpqNaMDnZoYkoR5m10a3GTmJWH09GAv7xVZTc7cE37MMDiWJSf-ZvGM/exec";
+    const TOTAL_EXAM_ELEMENTS = 77;
+
+    const elementsData = [
+      // Grup 1
+      { z: 1, name: 'Hidrogen', symbol: 'H', group: 1, period: 1 },
+      { z: 3, name: 'Liti', symbol: 'Li', group: 1, period: 2 },
+      { z: 11, name: 'Sodi', symbol: 'Na', group: 1, period: 3 },
+      { z: 19, name: 'Potassi', symbol: 'K', group: 1, period: 4 },
+      { z: 37, name: 'Rubidi', symbol: 'Rb', group: 1, period: 5 },
+      { z: 55, name: 'Cesi', symbol: 'Cs', group: 1, period: 6 },
+      { z: 87, name: 'Franci', symbol: 'Fr', group: 1, period: 7 },
+      // Grup 2
+      { z: 4, name: 'Beril·li', symbol: 'Be', group: 2, period: 2 },
+      { z: 12, name: 'Magnesi', symbol: 'Mg', group: 2, period: 3 },
+      { z: 20, name: 'Calci', symbol: 'Ca', group: 2, period: 4 },
+      { z: 38, name: 'Estronci', symbol: 'Sr', group: 2, period: 5 },
+      { z: 56, name: 'Bari', symbol: 'Ba', group: 2, period: 6 },
+      { z: 88, name: 'Radi', symbol: 'Ra', group: 2, period: 7 },
+      // Grup 3
+      { z: 21, name: 'Escandi', symbol: 'Sc', group: 3, period: 4 },
+      { z: 39, name: 'Itri', symbol: 'Y', group: 3, period: 5 },
+      // Grup 4
+      { z: 22, name: 'Titani', symbol: 'Ti', group: 4, period: 4 },
+      { z: 40, name: 'Zirconi', symbol: 'Zr', group: 4, period: 5 },
+      { z: 72, name: 'Hafni', symbol: 'Hf', group: 4, period: 6 },
+      // Grup 5
+      { z: 23, name: 'Vanadi', symbol: 'V', group: 5, period: 4 },
+      { z: 41, name: 'Niobi', symbol: 'Nb', group: 5, period: 5 },
+      { z: 73, name: 'Tàntal', symbol: 'Ta', group: 5, period: 6 },
+      // Grup 6
+      { z: 24, name: 'Crom', symbol: 'Cr', group: 6, period: 4 },
+      { z: 42, name: 'Molibdè', symbol: 'Mo', group: 6, period: 5 },
+      { z: 74, name: 'Tungstè', symbol: 'W', group: 6, period: 6 },
+      // Grup 7
+      { z: 25, name: 'Manganès', symbol: 'Mn', group: 7, period: 4 },
+      { z: 43, name: 'Tecneci', symbol: 'Tc', group: 7, period: 5 },
+      { z: 75, name: 'Reni', symbol: 'Re', group: 7, period: 6 },
+      // Grup 8
+      { z: 26, name: 'Ferro', symbol: 'Fe', group: 8, period: 4 },
+      { z: 44, name: 'Ruteni', symbol: 'Ru', group: 8, period: 5 },
+      { z: 76, name: 'Osmi', symbol: 'Os', group: 8, period: 6 },
+      // Grup 9
+      { z: 27, name: 'Cobalt', symbol: 'Co', group: 9, period: 4 },
+      { z: 45, name: 'Rodi', symbol: 'Rh', group: 9, period: 5 },
+      { z: 77, name: 'Iridi', symbol: 'Ir', group: 9, period: 6 },
+      // Grup 10
+      { z: 28, name: 'Níquel', symbol: 'Ni', group: 10, period: 4 },
+      { z: 46, name: 'Pal·ladi', symbol: 'Pd', group: 10, period: 5 },
+      { z: 78, name: 'Platí', symbol: 'Pt', group: 10, period: 6 },
+      // Grup 11
+      { z: 29, name: 'Coure', symbol: 'Cu', group: 11, period: 4 },
+      { z: 47, name: 'Plata', symbol: 'Ag', group: 11, period: 5 },
+      { z: 79, name: 'Or', symbol: 'Au', group: 11, period: 6 },
+      // Grup 12
+      { z: 30, name: 'Zinc', symbol: 'Zn', group: 12, period: 4 },
+      { z: 48, name: 'Cadmi', symbol: 'Cd', group: 12, period: 5 },
+      { z: 80, name: 'Mercuri', symbol: 'Hg', group: 12, period: 6 },
+      // Grup 13
+      { z: 5, name: 'Bor', symbol: 'B', group: 13, period: 2 },
+      { z: 13, name: 'Alumini', symbol: 'Al', group: 13, period: 3 },
+      { z: 31, name: 'Gal·li', symbol: 'Ga', group: 13, period: 4 },
+      { z: 49, name: 'Indi', symbol: 'In', group: 13, period: 5 },
+      { z: 81, name: 'Tal·li', symbol: 'Tl', group: 13, period: 6 },
+      // Grup 14
+      { z: 6, name: 'Carboni', symbol: 'C', group: 14, period: 2 },
+      { z: 14, name: 'Silici', symbol: 'Si', group: 14, period: 3 },
+      { z: 32, name: 'Germani', symbol: 'Ge', group: 14, period: 4 },
+      { z: 50, name: 'Estany', symbol: 'Sn', group: 14, period: 5 },
+      { z: 82, name: 'Plom', symbol: 'Pb', group: 14, period: 6 },
+      // Grup 15
+      { z: 7, name: 'Nitrogen', symbol: 'N', group: 15, period: 2 },
+      { z: 15, name: 'Fòsfor', symbol: 'P', group: 15, period: 3 },
+      { z: 33, name: 'Arsènic', symbol: 'As', group: 15, period: 4 },
+      { z: 51, name: 'Antimoni', symbol: 'Sb', group: 15, period: 5 },
+      { z: 83, name: 'Bismut', symbol: 'Bi', group: 15, period: 6 },
+      // Grup 16
+      { z: 8, name: 'Oxigen', symbol: 'O', group: 16, period: 2 },
+      { z: 16, name: 'Sofre', symbol: 'S', group: 16, period: 3 },
+      { z: 34, name: 'Seleni', symbol: 'Se', group: 16, period: 4 },
+      { z: 52, name: 'Tel·luri', symbol: 'Te', group: 16, period: 5 },
+      { z: 84, name: 'Poloni', symbol: 'Po', group: 16, period: 6 },
+      // Grup 17
+      { z: 9, name: 'Fluor', symbol: 'F', group: 17, period: 2 },
+      { z: 17, name: 'Clor', symbol: 'Cl', group: 17, period: 3 },
+      { z: 35, name: 'Brom', symbol: 'Br', group: 17, period: 4 },
+      { z: 53, name: 'Iode', symbol: 'I', group: 17, period: 5 },
+      { z: 85, name: 'Àstat', symbol: 'At', group: 17, period: 6 },
+      // Grup 18
+      { z: 2, name: 'Heli', symbol: 'He', group: 18, period: 1 },
+      { z: 10, name: 'Neó', symbol: 'Ne', group: 18, period: 2 },
+      { z: 18, name: 'Argó', symbol: 'Ar', group: 18, period: 3 },
+      { z: 36, name: 'Criptó', symbol: 'Kr', group: 18, period: 4 },
+      { z: 54, name: 'Xenó', symbol: 'Xe', group: 18, period: 5 },
+      { z: 86, name: 'Radó', symbol: 'Rn', group: 18, period: 6 },
+      // Lantanoides / Actinoides
+      { z: 57, name: 'Lantani', symbol: 'La', group: 3, period: 9 },
+      { z: 89, name: 'Actini', symbol: 'Ac', group: 3, period: 10 },
+      { z: 92, name: 'Urani', symbol: 'U', group: 6, period: 10 },
+      { z: 94, name: 'Plutoni', symbol: 'Pu', group: 8, period: 10 }
+    ];
+
+    let studentName = '';
+    let examCode = '';
+    let clientIp = 'IP Desconeguda';
+    let currentPart = 1; // 1 = sym-name, 2 = name-sym
+    
+    let questionsPart1 = [];
+    let questionsPart2 = [];
+    let answersPart1 = new Array(TOTAL_EXAM_ELEMENTS).fill('');
+    let answersPart2 = new Array(TOTAL_EXAM_ELEMENTS).fill('');
+    
+    let currentIndex = 0;
+    let part1Results = null;
+    let part2Results = null;
+
+    function initTheme() {
+      const userTheme = localStorage.getItem('theme');
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (userTheme === 'dark' || (!userTheme && systemTheme)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        updateThemeIcons(true);
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        updateThemeIcons(false);
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateThemeIcons(isDark);
+      updateGridDisplay();
+    }
+
+    function updateThemeIcons(isDark) {
+      document.getElementById('theme-toggle-dark-icon').classList.toggle('hidden', !isDark);
+      document.getElementById('theme-toggle-light-icon').classList.toggle('hidden', isDark);
+    }
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      getClientIP();
+      renderPeriodicTableGrid();
+      setupInputListeners();
+    });
+
+    async function getClientIP() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        clientIp = data.ip || 'IP Desconeguda';
+      } catch (err) {
+        clientIp = 'IP Desconeguda';
+      }
+    }
+
+    function submitStartModal() {
+      const nameVal = document.getElementById('start-student-name').value.trim();
+      const codeVal = document.getElementById('start-exam-code').value.trim();
+
+      if (!nameVal) {
+        alert("Per favor, escriu el teu nom i cognoms.");
+        document.getElementById('start-student-name').focus();
+        return;
+      }
+      if (!codeVal || codeVal.length !== 4 || isNaN(codeVal)) {
+        alert("Per favor, introdueix el codi de 4 xifres proporcionat pel professorat.");
+        document.getElementById('start-exam-code').focus();
+        return;
+      }
+
+      studentName = nameVal;
+      examCode = codeVal;
+
+      document.getElementById('header-student-name').textContent = studentName;
+      document.getElementById('start-modal').classList.add('hidden');
+
+      // Inicialitza Part 1
+      questionsPart1 = shuffleArray(elementsData);
+      answersPart1 = new Array(TOTAL_EXAM_ELEMENTS).fill('');
+      currentPart = 1;
+      currentIndex = 0;
+      loadQuestion(0);
+    }
+
+    function getCurrentQuestions() {
+      return currentPart === 1 ? questionsPart1 : questionsPart2;
+    }
+
+    function getCurrentAnswers() {
+      return currentPart === 1 ? answersPart1 : answersPart2;
+    }
+
+    function renderPeriodicTableGrid() {
+      const grid = document.getElementById('periodic-table-grid');
+      grid.innerHTML = '';
+
+      elementsData.forEach(el => {
+        const cell = document.createElement('div');
+        cell.id = `cell-${el.z}`;
+        cell.className = 'element-cell border transition-all';
+        cell.style.gridColumn = el.group;
+        cell.style.gridRow = el.period;
+        
+        cell.addEventListener('click', () => {
+          const questions = getCurrentQuestions();
+          const targetIndex = questions.findIndex(q => q.z === el.z);
+          if (targetIndex !== -1) {
+            saveCurrentAnswer();
+            loadQuestion(targetIndex);
+          }
+        });
+
+        grid.appendChild(cell);
+      });
+    }
+
+    function loadQuestion(index) {
+      const questions = getCurrentQuestions();
+      const answers = getCurrentAnswers();
+
+      if (index < 0 || index >= questions.length) return;
+      currentIndex = index;
+
+      const currentElement = questions[currentIndex];
+
+      // Pinta la targeta de pregunta
+      katex.render(`Z = ${currentElement.z}`, document.getElementById('target-z-katex'), { displayMode: false });
+
+      const promptType = document.getElementById('question-prompt-type');
+      const questionText = document.getElementById('question-text');
+      const hintText = document.getElementById('group-period-hint');
+      const targetMainText = document.getElementById('target-main-text');
+
+      if (currentPart === 1) {
+        promptType.textContent = 'Examen Part 1: Símbol ➔ Nom';
+        questionText.textContent = `Quin és el nom en català de l'element amb símbol ${currentElement.symbol}?`;
+        targetMainText.textContent = currentElement.symbol;
+      } else {
+        promptType.textContent = 'Examen Part 2: Nom ➔ Símbol';
+        questionText.textContent = `Quin és el símbol químic de l'element ${currentElement.name}?`;
+        targetMainText.textContent = '?';
+      }
+
+      hintText.textContent = `Ubicació: Grup ${currentElement.group}, Període ${currentElement.period > 7 ? 'Especial' : currentElement.period}`;
+
+      // Carrega la resposta desada prèviament
+      const input = document.getElementById('user-input');
+      input.value = answers[currentIndex] || '';
+
+      // Actualitza botons de navegació
+      document.getElementById('btn-prev').disabled = (currentIndex === 0);
+      document.getElementById('btn-next').disabled = (currentIndex === TOTAL_EXAM_ELEMENTS - 1);
+      document.getElementById('question-index-indicator').textContent = `Pregunta ${currentIndex + 1} de 77`;
+
+      updateProgressUI();
+      updateGridDisplay();
+
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function saveCurrentAnswer() {
+      const answers = getCurrentAnswers();
+      const input = document.getElementById('user-input');
+      answers[currentIndex] = input.value.trim();
+    }
+
+    function setupInputListeners() {
+      const input = document.getElementById('user-input');
+      
+      input.addEventListener('input', () => {
+        saveCurrentAnswer();
+        updateProgressUI();
+        updateGridDisplay();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          if (currentIndex < TOTAL_EXAM_ELEMENTS - 1) {
+            navigateQuestion(1);
+          }
+        } else if (e.key === 'ArrowLeft' && input.selectionStart === 0) {
+          e.preventDefault();
+          if (currentIndex > 0) {
+            navigateQuestion(-1);
+          }
+        }
+      });
+    }
+
+    function navigateQuestion(direction) {
+      saveCurrentAnswer();
+      loadQuestion(currentIndex + direction);
+    }
+
+    function updateProgressUI() {
+      const answers = getCurrentAnswers();
+      const answeredCount = answers.filter(a => a.length > 0).length;
+      document.getElementById('answered-count-display').textContent = `${answeredCount} / 77`;
+    }
+
+    function updateGridDisplay() {
+      const questions = getCurrentQuestions();
+      const answers = getCurrentAnswers();
+
+      elementsData.forEach(el => {
+        const cell = document.getElementById(`cell-${el.z}`);
+        if (!cell) return;
+
+        const qIndex = questions.findIndex(q => q.z === el.z);
+        const isActive = (qIndex === currentIndex);
+        const hasAnswer = qIndex !== -1 && answers[qIndex] && answers[qIndex].length > 0;
+
+        if (isActive) {
+          cell.className = 'element-cell bg-sky-600 border-2 border-sky-400 text-white font-bold shadow-lg shadow-sky-500/20 scale-105 z-10';
+          cell.innerHTML = `
+            <span class="text-[9px] text-sky-100 font-mono w-full text-left pl-0.5">${el.z}</span>
+            <span class="font-extrabold text-xs text-white">${currentPart === 1 ? el.symbol : '?'}</span>
+            <span class="text-[8px] text-sky-100 font-mono">▶</span>
+          `;
+        } else if (hasAnswer) {
+          cell.className = 'element-cell bg-emerald-100 dark:bg-emerald-950/80 border-emerald-400 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 font-semibold';
+          cell.innerHTML = `
+            <span class="text-[8px] font-mono opacity-80">${el.z}</span>
+            <span class="text-[10px] font-bold">✓</span>
+          `;
+        } else {
+          cell.className = 'element-cell bg-slate-100/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 opacity-60 dark:opacity-70';
+          cell.innerHTML = `
+            <span class="text-[8px] font-mono">${el.z}</span>
+          `;
+        }
+      });
+    }
+
+    function openConfirmFinishModal() {
+      saveCurrentAnswer();
+      const answers = getCurrentAnswers();
+      const answeredCount = answers.filter(a => a.length > 0).length;
+      
+      document.getElementById('confirm-modal-part-label').textContent = currentPart === 1 ? 'Part 1: Símbol ➔ Nom' : 'Part 2: Nom ➔ Símbol';
+      document.getElementById('confirm-answered-text').textContent = `Has respost ${answeredCount} de 77 preguntes.`;
+      
+      const warningText = document.getElementById('confirm-warning-text');
+      if (answeredCount < TOTAL_EXAM_ELEMENTS) {
+        warningText.textContent = `Atenció: Et queden ${TOTAL_EXAM_ELEMENTS - answeredCount} preguntes sense contestar.`;
+        warningText.classList.remove('hidden');
+      } else {
+        warningText.classList.add('hidden');
+      }
+
+      document.getElementById('send-status-box').classList.add('hidden');
+      document.getElementById('btn-submit-part').disabled = false;
+      document.getElementById('confirm-finish-modal').classList.remove('hidden');
+    }
+
+    function closeConfirmFinishModal() {
+      document.getElementById('confirm-finish-modal').classList.add('hidden');
+    }
+
+    function evaluateCurrentAnswers() {
+      const questions = getCurrentQuestions();
+      const answers = getCurrentAnswers();
+
+      let correct = 0;
+      let incorrect = 0;
+      let currentStreak = 0;
+      let maxStreak = 0;
+      let mistakes = [];
+
+      for (let i = 0; i < TOTAL_EXAM_ELEMENTS; i++) {
+        const el = questions[i];
+        const userVal = (answers[i] || '').trim();
+        const expected = currentPart === 1 ? el.name : el.symbol;
+
+        let isCorrect = false;
+
+        if (currentPart === 1) {
+          isCorrect = (userVal.toLowerCase() === expected.toLowerCase());
+        } else {
+          isCorrect = (userVal === expected);
+        }
+
+        if (isCorrect) {
+          correct++;
+          currentStreak++;
+          if (currentStreak > maxStreak) maxStreak = currentStreak;
+        } else {
+          incorrect++;
+          currentStreak = 0;
+          mistakes.push({
+            element: el,
+            userAnswer: userVal || '(Sense resposta)',
+            correctAnswer: expected,
+            questionType: currentPart === 1 ? 'sym-name' : 'name-sym'
+          });
+        }
+      }
+
+      const totalAttempted = correct + incorrect;
+      const accuracy = totalAttempted > 0 ? Math.round((correct / TOTAL_EXAM_ELEMENTS) * 100) : 0;
+      
+      // Càlcul de la nota sobre 10 respecte als 77 totals i formateig amb coma
+      const rawScore10 = (correct / TOTAL_EXAM_ELEMENTS) * 10;
+      const score10Formatted = rawScore10.toFixed(2).replace('.', ',');
+
+      return {
+        correct,
+        incorrect,
+        maxStreak,
+        accuracy,
+        score10Formatted,
+        mistakes
+      };
+    }
+
+    function formatMistakesForText(mistakesArray) {
+      if (!mistakesArray || mistakesArray.length === 0) {
+        return "Cap error comès.";
+      }
+
+      return mistakesArray.map((m, idx) => {
+        const detail = m.questionType === 'sym-name' 
+          ? `Símbol: ${m.element.symbol} (Z = ${m.element.z})` 
+          : `Element: ${m.element.name} (Z = ${m.element.z})`;
+        return `[${idx + 1}] ${detail} | Resposta alumne/a: "${m.userAnswer}" | Esperat: "${m.correctAnswer}"`;
+      }).join('\n');
+    }
+
+    async function submitCurrentPart() {
+      const btnSubmit = document.getElementById('btn-submit-part');
+      const statusBox = document.getElementById('send-status-box');
+
+      btnSubmit.disabled = true;
+      statusBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800';
+      statusBox.textContent = "Enviant resultats al servidor del professorat...";
+      statusBox.classList.remove('hidden');
+
+      const result = evaluateCurrentAnswers();
+      const mistakesFormatted = formatMistakesForText(result.mistakes);
+
+      const payload = {
+        studentName: studentName,
+        examCode: examCode,
+        clientIp: clientIp,
+        examType: currentPart === 1 ? 'Part 1: Símbol a Nom' : 'Part 2: Nom a Símbol',
+        correct: result.correct,
+        incorrect: result.incorrect,
+        maxStreak: result.maxStreak,
+        accuracy: result.accuracy,
+        score10: result.score10Formatted,
+        mistakes: mistakesFormatted
+      };
+
+      try {
+        await fetch(GOOGLE_SCRIPT_WEBAPP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (currentPart === 1) {
+          part1Results = result;
+          closeConfirmFinishModal();
+          document.getElementById('part1-done-modal').classList.remove('hidden');
+        } else {
+          part2Results = result;
+          closeConfirmFinishModal();
+          showFinalResultsModal();
+        }
+      } catch (error) {
+        console.error("Error d'enviament:", error);
+        statusBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800';
+        statusBox.textContent = "✗ Error de connexió. Torna a intentar-ho.";
+        btnSubmit.disabled = false;
+      }
+    }
+
+    function startPart2() {
+      document.getElementById('part1-done-modal').classList.add('hidden');
+      
+      currentPart = 2;
+      questionsPart2 = shuffleArray(elementsData);
+      answersPart2 = new Array(TOTAL_EXAM_ELEMENTS).fill('');
+      currentIndex = 0;
+
+      document.getElementById('exam-part-badge').textContent = 'Part 2: Nom ➔ Símbol';
+      loadQuestion(0);
+    }
+
+    function showFinalResultsModal() {
+      document.getElementById('final-student-info').textContent = `Alumne/a: ${studentName} | Codi d'aula: ${examCode} | IP: ${clientIp}`;
+
+      // Desglossat Part 1
+      document.getElementById('p1-correct').textContent = `${part1Results.correct} / 77`;
+      document.getElementById('p1-incorrect').textContent = part1Results.incorrect;
+      document.getElementById('p1-accuracy').textContent = `${part1Results.accuracy}%`;
+      document.getElementById('p1-score').textContent = `${part1Results.score10Formatted} / 10`;
+
+      // Desglossat Part 2
+      document.getElementById('p2-correct').textContent = `${part2Results.correct} / 77`;
+      document.getElementById('p2-incorrect').textContent = part2Results.incorrect;
+      document.getElementById('p2-accuracy').textContent = `${part2Results.accuracy}%`;
+      document.getElementById('p2-score').textContent = `${part2Results.score10Formatted} / 10`;
+
+      // Nota Mitjana Global
+      const totalCorrect = part1Results.correct + part2Results.correct;
+      const globalScoreRaw = (totalCorrect / (TOTAL_EXAM_ELEMENTS * 2)) * 10;
+      const globalScoreFormatted = globalScoreRaw.toFixed(2).replace('.', ',');
+      document.getElementById('global-final-score').textContent = `${globalScoreFormatted} / 10`;
+
+      // Contenidor d'Errades Combinat
+      const mistakesContainer = document.getElementById('final-mistakes-container');
+      mistakesContainer.innerHTML = '';
+
+      const allMistakes = [
+        ...part1Results.mistakes.map(m => ({ ...m, part: 'Part 1 (Símbol➔Nom)' })),
+        ...part2Results.mistakes.map(m => ({ ...m, part: 'Part 2 (Nom➔Símbol)' }))
+      ];
+
+      if (allMistakes.length === 0) {
+        mistakesContainer.innerHTML = `<p class="text-emerald-600 dark:text-emerald-400 font-bold text-center py-4">🎉 Felicitats! Has obtingut un 10 perfecte sense cap errada.</p>`;
+      } else {
+        allMistakes.forEach((item, idx) => {
+          const div = document.createElement('div');
+          div.className = 'bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs gap-2';
+          
+          const detail = item.questionType === 'sym-name' 
+            ? `Nom de <strong class="text-sky-600 dark:text-sky-400">${item.element.symbol}</strong>` 
+            : `Símbol de <strong class="text-sky-600 dark:text-sky-400">${item.element.name}</strong>`;
+
+          div.innerHTML = `
+            <div>
+              <span class="text-[10px] text-slate-400 font-mono block">${item.part} — Error #${idx + 1}</span>
+              <p class="text-slate-800 dark:text-slate-200 font-medium">${detail} (Z=${item.element.z})</p>
+              <p class="text-rose-600 dark:text-rose-400 text-[11px]">Resposta: <span class="line-through">${item.userAnswer}</span></p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2 py-1 rounded text-[11px]">
+                ${item.correctAnswer}
+              </span>
+            </div>
+          `;
+          mistakesContainer.appendChild(div);
+        });
+      }
+
+      document.getElementById('final-results-modal').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
