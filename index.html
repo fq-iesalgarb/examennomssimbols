@@ -267,7 +267,7 @@
           <div class="h-8 w-px bg-slate-200 dark:bg-slate-700"></div>
           <div class="text-center">
             <span class="block text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Nota Global ( / 10)</span>
-            <span id="report-score10" class="font-black text-emerald-600 dark:text-emerald-400 text-base">0.00 / 10</span>
+            <span id="report-score10" class="font-black text-emerald-600 dark:text-emerald-400 text-base">0,00 / 10</span>
           </div>
         </div>
       </div>
@@ -771,8 +771,9 @@
       const totalQuestions = stats.correct + stats.incorrect;
       const accuracy = totalQuestions > 0 ? Math.round((stats.correct / totalQuestions) * 100) : 0;
       
-      // Càlcul de la nota global sobre 10 respecte dels 77 elements totals
-      const score10 = ((stats.correct / TOTAL_EXAM_ELEMENTS) * 10).toFixed(2);
+      // Càlcul de la nota sobre 10 respecte als 77 elements i conversió de punt a coma
+      const rawScore10 = (stats.correct / TOTAL_EXAM_ELEMENTS) * 10;
+      const score10Formatted = rawScore10.toFixed(2).replace('.', ',');
 
       document.getElementById('report-timestamp').textContent = timestampDisplay;
       document.getElementById('report-mode').textContent = modeNames[currentMode] || currentMode;
@@ -780,7 +781,7 @@
       document.getElementById('report-incorrect').textContent = stats.incorrect;
       document.getElementById('report-max-streak').textContent = `${stats.maxStreak} 🔥`;
       document.getElementById('report-accuracy').textContent = `${accuracy}%`;
-      document.getElementById('report-score10').textContent = `${score10} / 10`;
+      document.getElementById('report-score10').textContent = `${score10Formatted} / 10`;
 
       modal.classList.remove('hidden');
 
@@ -850,7 +851,11 @@
 
       const totalQuestions = stats.correct + stats.incorrect;
       const accuracy = totalQuestions > 0 ? Math.round((stats.correct / totalQuestions) * 100) : 0;
-      const score10 = ((stats.correct / TOTAL_EXAM_ELEMENTS) * 10).toFixed(2);
+      
+      // Nota sobre 10 calculada i formatejada amb coma
+      const rawScore10 = (stats.correct / TOTAL_EXAM_ELEMENTS) * 10;
+      const score10Formatted = rawScore10.toFixed(2).replace('.', ',');
+      
       const mistakesFormatted = formatMistakesForText(mistakes);
 
       const payload = {
@@ -862,7 +867,7 @@
         incorrect: stats.incorrect,
         maxStreak: stats.maxStreak,
         accuracy: accuracy,
-        score10: score10,
+        score10: score10Formatted,
         mistakes: mistakesFormatted
       };
 
@@ -875,7 +880,7 @@
         });
 
         statusBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
-        statusBox.textContent = `✓ Examen enviat amb èxit! Nota: ${score10}/10 | IP (${clientIp}) i Codi d'aula (${examCode}) enregistrats.`;
+        statusBox.textContent = `✓ Examen enviat amb èxit! Nota: ${score10Formatted}/10 | IP (${clientIp}) i Codi d'aula (${examCode}) enregistrats.`;
       } catch (error) {
         console.error("Error d'enviament:", error);
         statusBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800';
