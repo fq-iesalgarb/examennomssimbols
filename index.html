@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ca" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examen de la Taula Periòdica - Química</title>
+  
+  <!-- Favicon personalitzat -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              900: '#0c4a6e',
+            }
+          },
+          gridTemplateColumns: {
+            '18': 'repeat(18, minmax(0, 1fr))',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- KaTeX per a notació científica i matemàtica -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <style>
+    .pt-grid {
+      display: grid;
+      grid-template-columns: repeat(18, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .element-cell {
+      aspect-ratio: 0.95;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen font-sans flex flex-col justify-between transition-colors duration-200">
+
+  <!-- CAPÇALERA -->
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-3 shadow-sm transition-colors duration-200">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
+      
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 rounded-lg">
+          <svg class="w-6 h-6 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-sky-700 dark:text-sky-400 leading-tight">Examen de la Taula Periòdica</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Avaluació de Nomenclatura i Símbols Químics</p>
+        </div>
+      </div>
+
+      <!-- ENTRADA DE NOM DE L'ALUMNE (PÀGINA PRINCIPAL) -->
+      <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+        <svg class="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+        <input type="text" id="student-name-input" placeholder="Nom de l'alumne/a..." class="bg-transparent text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none w-36 sm:w-48 font-medium">
+      </div>
+
+      <!-- SELECTOR DE MODE D'EXAMEN -->
+      <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs">
+        <button id="mode-sym-name" onclick="setGameMode('sym-name')" class="px-3 py-1.5 rounded-md font-medium transition-colors bg-sky-600 text-white shadow-sm">Símbol → Nom</button>
+        <button id="mode-name-sym" onclick="setGameMode('name-sym')" class="px-3 py-1.5 rounded-md font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">Nom → Símbol</button>
+      </div>
+
+      <!-- MARCADOR, COMMUTADOR DE TEMA I ACCIONS -->
+      <div class="flex items-center gap-3">
+        
+        <!-- COMMUTADOR MODE LLUMINÓS / FOSC -->
+        <button id="theme-toggle" onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700" title="Canviar tema lluminós/fosc">
+          <svg id="theme-toggle-dark-icon" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z"></path>
+          </svg>
+          <svg id="theme-toggle-light-icon" class="hidden w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+          </svg>
+        </button>
+
+        <div class="flex items-center gap-4 bg-slate-100 dark:bg-slate-800 px-4 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+          <div class="text-emerald-700 dark:text-emerald-400">Encerts: <span id="score-correct">0</span></div>
+          <div class="text-rose-700 dark:text-rose-400">Errors: <span id="score-incorrect">0</span></div>
+          <div class="text-amber-700 dark:text-amber-400">Ratxa: <span id="score-streak">0</span> 🔥</div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Botó Veure Errades -->
+          <button id="btn-mistakes" onclick="openMistakesModal()" class="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/60 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <span id="mistakes-count-label">Errades (0)</span>
+          </button>
+
+          <!-- Botó Finalitzar i Veure Resum -->
+          <button onclick="showFinalReportModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span>Finalitzar Examen</span>
+          </button>
+
+          <!-- Botó Reiniciar -->
+          <button onclick="restartGameWithConfirmation()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span>Reiniciar</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- PANELL DE PREGUNTA I INTERACCIÓ -->
+  <main class="max-w-7xl mx-auto w-full px-3 py-3 flex-grow flex flex-col gap-3">
+    
+    <div id="question-card" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-md transition-all">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <!-- Targeta de Pregunta -->
+        <div class="flex items-center gap-4 w-full md:w-auto">
+          <div id="target-display-box" class="w-20 h-20 bg-sky-50 dark:bg-sky-950/50 border-2 border-sky-300 dark:border-sky-700 rounded-xl flex flex-col items-center justify-center shadow-sm relative">
+            <span id="target-z-katex" class="absolute top-1 left-2 text-[10px] text-sky-700 dark:text-sky-300 font-mono"></span>
+            <span id="target-main-text" class="text-2xl font-black text-slate-900 dark:text-white">Pb</span>
+          </div>
+          <div>
+            <span id="question-prompt-type" class="text-xs uppercase tracking-wider text-sky-600 dark:text-sky-400 font-semibold">Examen: Símbol ➔ Nom</span>
+            <h2 id="question-text" class="text-lg font-bold text-slate-900 dark:text-white">Quin és el nom en català de l'element amb símbol Pb?</h2>
+            <p id="group-period-hint" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Ubicació: Grup 14, Període 6</p>
+          </div>
+        </div>
+
+        <!-- Formulari d'Entrada -->
+        <div id="interaction-form" class="w-full md:w-auto flex-1 max-w-md flex flex-col gap-2">
+          <div class="flex gap-2">
+            <input type="text" id="user-input" placeholder="Escriu la teva resposta..." autocomplete="off" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:border-sky-600 focus:ring-1 focus:ring-sky-600 font-medium text-sm transition-all placeholder-slate-400 dark:placeholder-slate-500">
+            <button id="btn-action" onclick="handleUserSubmit()" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm flex items-center gap-1.5 shrink-0 shadow-md"><span>Comprovar</span><kbd class="hidden sm:inline-block bg-sky-700 px-1.5 py-0.5 rounded text-[10px] text-sky-100">Enter</kbd></button>
+          </div>
+          <div id="feedback-message" class="min-h-[24px] text-xs font-medium px-1 flex items-center gap-1.5"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAULA PERIÒDICA DE 18 COLUMNES -->
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 shadow-md overflow-x-auto custom-scrollbar transition-colors">
+      <div class="pt-grid min-w-[850px] text-center text-[10px] text-slate-500 dark:text-slate-400 font-mono mb-1">
+        <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>
+        <div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
+        <div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div>
+      </div>
+      <div id="periodic-table-grid" class="pt-grid min-w-[850px]"></div>
+    </div>
+
+  </main>
+
+  <!-- MODAL D'ERRADES -->
+  <div id="mistakes-modal" class="fixed inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl max-w-md w-full p-5 shadow-2xl flex flex-col gap-4 max-h-[80vh]">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+        <h3 class="text-base font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <span>Historial d'Errades de l'Examen</span>
+        </h3>
+        <button onclick="closeMistakesModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-bold p-1 rounded">✕</button>
+      </div>
+      
+      <div id="mistakes-list" class="overflow-y-auto flex-grow flex flex-col gap-2 pr-1 custom-scrollbar"></div>
+
+      <div class="flex justify-end pt-2 border-t border-slate-200 dark:border-slate-700">
+        <button onclick="closeMistakesModal()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-lg text-xs font-semibold">Tancar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL INFORME FINAL D'EXAMEN -->
+  <div id="final-report-modal" class="fixed inset-0 bg-slate-900/50 dark:bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 border border-sky-200 dark:border-sky-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl flex flex-col gap-5 relative">
+      
+      <div class="text-center border-b border-slate-200 dark:border-slate-700 pb-4">
+        <div class="inline-flex p-3 bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 rounded-full mb-2">
+          <svg class="w-8 h-8 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h3 class="text-xl font-black text-slate-900 dark:text-white">Informe Oficial d'Examen</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Nomenclatura i Símbols Químics de la Taula Periòdica</p>
+      </div>
+
+      <div class="space-y-3 bg-slate-50 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+        <!-- CAMP D'ENTRADA DE NOM A LA MODAL -->
+        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 gap-2">
+          <label for="modal-student-name-input" class="text-slate-500 dark:text-slate-400 font-medium shrink-0">Alumne/a:</label>
+          <input type="text" id="modal-student-name-input" placeholder="Escriu el teu nom i cognoms..." class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 focus:border-sky-600 focus:ring-1 focus:ring-sky-600 rounded-lg px-3 py-1.5 text-xs font-bold text-sky-700 dark:text-sky-400 w-full text-right transition-all">
+        </div>
+        
+        <!-- CAMP D'ENTRADA DE CODI D'AULA (4 XIFRES) -->
+        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 gap-2">
+          <label for="modal-exam-code-input" class="text-slate-500 dark:text-slate-400 font-medium shrink-0">Codi d'aula (4 xifres):</label>
+          <input type="text" id="modal-exam-code-input" maxlength="4" placeholder="Ex: 8492" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 focus:border-sky-600 focus:ring-1 focus:ring-sky-600 rounded-lg px-3 py-1.5 text-xs font-bold text-sky-700 dark:text-sky-400 w-28 text-center transition-all">
+        </div>
+
+        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2">
+          <span class="text-slate-500 dark:text-slate-400 font-medium">Data i Hora de finalització:</span>
+          <span id="report-timestamp" class="font-mono text-slate-800 dark:text-slate-200"></span>
+        </div>
+        <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2">
+          <span class="text-slate-500 dark:text-slate-400 font-medium">Tipus d'Examen:</span>
+          <span id="report-mode" class="font-semibold text-slate-800 dark:text-slate-200"></span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 pt-2 text-center">
+          <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-2 rounded-lg">
+            <div class="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase font-bold">Encerts</div>
+            <div id="report-correct" class="text-lg font-black text-emerald-700 dark:text-emerald-400">0</div>
+          </div>
+          <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 p-2 rounded-lg">
+            <div class="text-[10px] text-rose-700 dark:text-rose-400 uppercase font-bold">Errors</div>
+            <div id="report-incorrect" class="text-lg font-black text-rose-700 dark:text-rose-400">0</div>
+          </div>
+          <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-2 rounded-lg">
+            <div class="text-[10px] text-amber-700 dark:text-amber-400 uppercase font-bold">Ratxa Màxima</div>
+            <div id="report-max-streak" class="text-lg font-black text-amber-700 dark:text-amber-400">0 🔥</div>
+          </div>
+        </div>
+        <div class="text-center pt-2">
+          <span class="text-slate-500 dark:text-slate-400">Nota / Percentatge d'encert: </span>
+          <span id="report-accuracy" class="font-bold text-sky-700 dark:text-sky-400 text-sm">0%</span>
+        </div>
+      </div>
+
+      <!-- Retroalimentació d'Enviament -->
+      <div id="send-status-box" class="hidden p-3 rounded-lg text-xs font-semibold text-center"></div>
+
+      <div class="flex gap-3 justify-end pt-2">
+        <button id="btn-send-mail" onclick="sendExamToGoogleSheets()" class="bg-sky-600 hover:bg-sky-500 text-white px-5 py-2.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          <span>Enviar Resultats al Professorat</span>
+        </button>
+        <button onclick="closeFinalReportModal()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors">Tancar</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PEU DE PÀGINA -->
+  <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-2 px-4 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
+    Aplicació Educativa de Química — Versió Examen amb Enviament Google Suite
+  </footer>
+
+  <!-- LÒGICA EN JAVASCRIPT -->
+  <script>
+    const GOOGLE_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzygUGoYMDsYEpqNaMDnZoYkoR5m10a3GTmJWH09GAv7xVZTc7cE37MMDiWJSf-ZvGM/exec";
+
+    const elementsData = [
+      // Grup 1
+      { z: 1, name: 'Hidrogen', symbol: 'H', group: 1, period: 1 },
+      { z: 3, name: 'Liti', symbol: 'Li', group: 1, period: 2 },
+      { z: 11, name: 'Sodi', symbol: 'Na', group: 1, period: 3 },
+      { z: 19, name: 'Potassi', symbol: 'K', group: 1, period: 4 },
+      { z: 37, name: 'Rubidi', symbol: 'Rb', group: 1, period: 5 },
+      { z: 55, name: 'Cesi', symbol: 'Cs', group: 1, period: 6 },
+      { z: 87, name: 'Franci', symbol: 'Fr', group: 1, period: 7 },
+      // Grup 2
+      { z: 4, name: 'Beril·li', symbol: 'Be', group: 2, period: 2 },
+      { z: 12, name: 'Magnesi', symbol: 'Mg', group: 2, period: 3 },
+      { z: 20, name: 'Calci', symbol: 'Ca', group: 2, period: 4 },
+      { z: 38, name: 'Estronci', symbol: 'Sr', group: 2, period: 5 },
+      { z: 56, name: 'Bari', symbol: 'Ba', group: 2, period: 6 },
+      { z: 88, name: 'Radi', symbol: 'Ra', group: 2, period: 7 },
+      // Grup 3
+      { z: 21, name: 'Escandi', symbol: 'Sc', group: 3, period: 4 },
+      { z: 39, name: 'Itri', symbol: 'Y', group: 3, period: 5 },
+      // Grup 4
+      { z: 22, name: 'Titani', symbol: 'Ti', group: 4, period: 4 },
+      { z: 40, name: 'Zirconi', symbol: 'Zr', group: 4, period: 5 },
+      { z: 72, name: 'Hafni', symbol: 'Hf', group: 4, period: 6 },
+      // Grup 5
+      { z: 23, name: 'Vanadi', symbol: 'V', group: 5, period: 4 },
+      { z: 41, name: 'Niobi', symbol: 'Nb', group: 5, period: 5 },
+      { z: 73, name: 'Tàntal', symbol: 'Ta', group: 5, period: 6 },
+      // Grup 6
+      { z: 24, name: 'Crom', symbol: 'Cr', group: 6, period: 4 },
+      { z: 42, name: 'Molibdè', symbol: 'Mo', group: 6, period: 5 },
+      { z: 74, name: 'Tungstè', symbol: 'W', group: 6, period: 6 },
+      // Grup 7
+      { z: 25, name: 'Manganès', symbol: 'Mn', group: 7, period: 4 },
+      { z: 43, name: 'Tecneci', symbol: 'Tc', group: 7, period: 5 },
+      { z: 75, name: 'Reni', symbol: 'Re', group: 7, period: 6 },
+      // Grup 8
+      { z: 26, name: 'Ferro', symbol: 'Fe', group: 8, period: 4 },
+      { z: 44, name: 'Ruteni', symbol: 'Ru', group: 8, period: 5 },
+      { z: 76, name: 'Osmi', symbol: 'Os', group: 8, period: 6 },
+      // Grup 9
+      { z: 27, name: 'Cobalt', symbol: 'Co', group: 9, period: 4 },
+      { z: 45, name: 'Rodi', symbol: 'Rh', group: 9, period: 5 },
+      { z: 77, name: 'Iridi', symbol: 'Ir', group: 9, period: 6 },
+      // Grup 10
+      { z: 28, name: 'Níquel', symbol: 'Ni', group: 10, period: 4 },
+      { z: 46, name: 'Pal·ladi', symbol: 'Pd', group: 10, period: 5 },
+      { z: 78, name: 'Platí', symbol: 'Pt', group: 10, period: 6 },
+      // Grup 11
+      { z: 29, name: 'Coure', symbol: 'Cu', group: 11, period: 4 },
+      { z: 47, name: 'Plata', symbol: 'Ag', group: 11, period: 5 },
+      { z: 79, name: 'Or', symbol: 'Au', group: 11, period: 6 },
+      // Grup 12
+      { z: 30, name: 'Zinc', symbol: 'Zn', group: 12, period: 4 },
+      { z: 48, name: 'Cadmi', symbol: 'Cd', group: 12, period: 5 },
+      { z: 80, name: 'Mercuri', symbol: 'Hg', group: 12, period: 6 },
+      // Grup 13
+      { z: 5, name: 'Bor', symbol: 'B', group: 13, period: 2 },
+      { z: 13, name: 'Alumini', symbol: 'Al', group: 13, period: 3 },
+      { z: 31, name: 'Gal·li', symbol: 'Ga', group: 13, period: 4 },
+      { z: 49, name: 'Indi', symbol: 'In', group: 13, period: 5 },
+      { z: 81, name: 'Tal·li', symbol: 'Tl', group: 13, period: 6 },
+      // Grup 14
+      { z: 6, name: 'Carboni', symbol: 'C', group: 14, period: 2 },
+      { z: 14, name: 'Silici', symbol: 'Si', group: 14, period: 3 },
+      { z: 32, name: 'Germani', symbol: 'Ge', group: 14, period: 4 },
+      { z: 50, name: 'Estany', symbol: 'Sn', group: 14, period: 5 },
+      { z: 82, name: 'Plom', symbol: 'Pb', group: 14, period: 6 },
+      // Grup 15
+      { z: 7, name: 'Nitrogen', symbol: 'N', group: 15, period: 2 },
+      { z: 15, name: 'Fòsfor', symbol: 'P', group: 15, period: 3 },
+      { z: 33, name: 'Arsènic', symbol: 'As', group: 15, period: 4 },
+      { z: 51, name: 'Antimoni', symbol: 'Sb', group: 15, period: 5 },
+      { z: 83, name: 'Bismut', symbol: 'Bi', group: 15, period: 6 },
+      // Grup 16
+      { z: 8, name: 'Oxigen', symbol: 'O', group: 16, period: 2 },
+      { z: 16, name: 'Sofre', symbol: 'S', group: 16, period: 3 },
+      { z: 34, name: 'Seleni', symbol: 'Se', group: 16, period: 4 },
+      { z: 52, name: 'Tel·luri', symbol: 'Te', group: 16, period: 5 },
+      { z: 84, name: 'Poloni', symbol: 'Po', group: 16, period: 6 },
+      // Grup 17
+      { z: 9, name: 'Fluor', symbol: 'F', group: 17, period: 2 },
+      { z: 17, name: 'Clor', symbol: 'Cl', group: 17, period: 3 },
+      { z: 35, name: 'Brom', symbol: 'Br', group: 17, period: 4 },
+      { z: 53, name: 'Iode', symbol: 'I', group: 17, period: 5 },
+      { z: 85, name: 'Àstat', symbol: 'At', group: 17, period: 6 },
+      // Grup 18
+      { z: 2, name: 'Heli', symbol: 'He', group: 18, period: 1 },
+      { z: 10, name: 'Neó', symbol: 'Ne', group: 18, period: 2 },
+      { z: 18, name: 'Argó', symbol: 'Ar', group: 18, period: 3 },
+      { z: 36, name: 'Criptó', symbol: 'Kr', group: 18, period: 4 },
+      { z: 54, name: 'Xenó', symbol: 'Xe', group: 18, period: 5 },
+      { z: 86, name: 'Radó', symbol: 'Rn', group: 18, period: 6 },
+      // Lantanoides / Actinoides
+      { z: 57, name: 'Lantani', symbol: 'La', group: 3, period: 9 },
+      { z: 89, name: 'Actini', symbol: 'Ac', group: 3, period: 10 },
+      { z: 92, name: 'Urani', symbol: 'U', group: 6, period: 10 },
+      { z: 94, name: 'Plutoni', symbol: 'Pu', group: 8, period: 10 }
+    ];
+
+    let currentMode = 'sym-name';
+    let currentQuestionType = 'sym-name';
+    let currentElement = null;
+    let gameState = 'asking';
+    let stats = { correct: 0, incorrect: 0, streak: 0, maxStreak: 0 };
+    
+    let questionQueue = [];
+    let mistakes = [];
+
+    // GESTIÓ DEL TEMA FOSC / LLUMINÓS
+    function initTheme() {
+      const userTheme = localStorage.getItem('theme');
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (userTheme === 'dark' || (!userTheme && systemTheme)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        updateThemeIcons(true);
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        updateThemeIcons(false);
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('light');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.add('light');
+        localStorage.setItem('theme', 'light');
+      }
+      updateThemeIcons(isDark);
+      updateGridDisplay();
+    }
+
+    function updateThemeIcons(isDark) {
+      const darkIcon = document.getElementById('theme-toggle-dark-icon');
+      const lightIcon = document.getElementById('theme-toggle-light-icon');
+      if (isDark) {
+        darkIcon.classList.remove('hidden');
+        lightIcon.classList.add('hidden');
+      } else {
+        darkIcon.classList.add('hidden');
+        lightIcon.classList.remove('hidden');
+      }
+    }
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    function initQuestionQueue() {
+      questionQueue = shuffleArray(elementsData);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      renderPeriodicTableGrid();
+      setupEventListeners();
+      initQuestionQueue();
+      nextQuestion();
+    });
+
+    function renderPeriodicTableGrid() {
+      const grid = document.getElementById('periodic-table-grid');
+      grid.innerHTML = '';
+
+      elementsData.forEach(el => {
+        const cell = document.createElement('div');
+        cell.id = `cell-${el.z}`;
+        cell.className = 'element-cell border transition-all';
+        cell.style.gridColumn = el.group;
+        cell.style.gridRow = el.period;
+        grid.appendChild(cell);
+      });
+    }
+
+    function updateGridDisplay() {
+      elementsData.forEach(el => {
+        const cell = document.getElementById(`cell-${el.z}`);
+        if (!cell) return;
+
+        const isActive = currentElement && currentElement.z === el.z;
+
+        if (isActive) {
+          cell.className = 'element-cell bg-sky-600 border-2 border-sky-400 text-white font-bold shadow-lg shadow-sky-500/20 scale-105 z-10';
+          if (currentQuestionType === 'sym-name') {
+            cell.innerHTML = `
+              <span class="text-[9px] text-sky-100 font-mono w-full text-left pl-0.5">${el.z}</span>
+              <span class="font-extrabold text-sm text-white">${el.symbol}</span>
+              <span class="text-[8px] text-sky-100 font-mono">?</span>
+            `;
+          } else {
+            cell.innerHTML = `
+              <span class="text-[9px] text-sky-100 font-mono w-full text-left pl-0.5">${el.z}</span>
+              <span class="text-[9px] font-bold text-white text-center leading-tight px-0.5 mt-1">${el.name}</span>
+              <span class="text-[8px] text-sky-100 font-mono">?</span>
+            `;
+          }
+        } else {
+          cell.className = 'element-cell bg-slate-100/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 opacity-60 dark:opacity-70';
+          cell.innerHTML = `
+            <span class="text-[8px] font-mono text-slate-400 dark:text-slate-500">${el.z}</span>
+          `;
+        }
+      });
+    }
+
+    function setGameMode(mode) {
+      if (mode === currentMode) return;
+
+      const hasProgress = stats.correct > 0 || stats.incorrect > 0 || mistakes.length > 0;
+      
+      if (hasProgress) {
+        const confirmed = confirm("Si canvies de tipus d'examen s'esborrarà el progrés actual i es començarà des de zero. Estàs segur/a?");
+        if (!confirmed) return;
+      }
+
+      currentMode = mode;
+
+      const buttons = {
+        'sym-name': document.getElementById('mode-sym-name'),
+        'name-sym': document.getElementById('mode-name-sym')
+      };
+
+      Object.keys(buttons).forEach(key => {
+        if (key === mode) {
+          buttons[key].className = 'px-3 py-1.5 rounded-md font-medium transition-colors bg-sky-600 text-white shadow-sm';
+        } else {
+          buttons[key].className = 'px-3 py-1.5 rounded-md font-medium transition-colors text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white';
+        }
+      });
+
+      restartGame();
+    }
+
+    function nextQuestion() {
+      gameState = 'asking';
+
+      if (questionQueue.length === 0) {
+        showFinalReportModal();
+        initQuestionQueue();
+      }
+      currentElement = questionQueue.pop();
+      currentQuestionType = currentMode;
+
+      const input = document.getElementById('user-input');
+      const feedback = document.getElementById('feedback-message');
+      const btn = document.getElementById('btn-action');
+
+      input.value = '';
+      feedback.innerHTML = '';
+      
+      btn.innerHTML = `<span>Comprovar</span><kbd class="hidden sm:inline-block bg-sky-700 px-1.5 py-0.5 rounded text-[10px] text-sky-100">Enter</kbd>`;
+      btn.className = 'bg-sky-600 hover:bg-sky-500 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm flex items-center gap-1.5 shrink-0 shadow-md';
+
+      const promptType = document.getElementById('question-prompt-type');
+      const questionText = document.getElementById('question-text');
+      const hintText = document.getElementById('group-period-hint');
+      const targetMainText = document.getElementById('target-main-text');
+
+      katex.render(`Z = ${currentElement.z}`, document.getElementById('target-z-katex'), { displayMode: false });
+
+      if (currentQuestionType === 'sym-name') {
+        promptType.textContent = 'Examen: Símbol ➔ Nom';
+        questionText.textContent = `Quin és el nom en català de l'element amb símbol ${currentElement.symbol}?`;
+        targetMainText.textContent = currentElement.symbol;
+        hintText.textContent = `Ubicació: Grup ${currentElement.group}, Període ${currentElement.period > 7 ? 'Especial' : currentElement.period}`;
+      } else {
+        promptType.textContent = 'Examen: Nom ➔ Símbol';
+        questionText.textContent = `Quin és el símbol químic de l'element ${currentElement.name}?`;
+        targetMainText.textContent = '?';
+        hintText.textContent = `Ubicació: Grup ${currentElement.group}, Període ${currentElement.period > 7 ? 'Especial' : currentElement.period}`;
+      }
+
+      updateGridDisplay();
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function handleUserSubmit() {
+      if (gameState === 'asking') {
+        evaluateAnswer();
+      } else {
+        nextQuestion();
+      }
+    }
+
+    function normalizeTextForHint(str) {
+      return str
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/·/g, "");
+    }
+
+    function evaluateAnswer() {
+      const input = document.getElementById('user-input');
+      const userVal = input.value.trim();
+      const feedback = document.getElementById('feedback-message');
+      const btn = document.getElementById('btn-action');
+
+      if (!userVal) {
+        feedback.className = 'min-h-[24px] text-xs font-medium text-amber-600 dark:text-amber-400';
+        feedback.textContent = 'Per favor, escriu una resposta abans de comprovar.';
+        return;
+      }
+
+      let isCorrect = false;
+      let warningNote = '';
+      const expected = currentQuestionType === 'sym-name' ? currentElement.name : currentElement.symbol;
+
+      if (currentQuestionType === 'sym-name') {
+        if (userVal.toLowerCase() === currentElement.name.toLowerCase()) {
+          isCorrect = true;
+        } else {
+          isCorrect = false;
+          if (normalizeTextForHint(userVal) === normalizeTextForHint(currentElement.name)) {
+            warningNote = ' — Atenció: les faltes d\'accentuació o grafia (com l·l o dobles s) es consideren errors d\'examen.';
+          }
+        }
+      } else {
+        if (userVal === currentElement.symbol) {
+          isCorrect = true;
+        } else if (userVal.toLowerCase() === currentElement.symbol.toLowerCase()) {
+          isCorrect = false;
+          warningNote = ' — Recorda la norma IUPAC: la 1a lletra majúscula i la 2a minúscula.';
+        }
+      }
+
+      gameState = 'feedback';
+
+      if (isCorrect) {
+        stats.correct++;
+        stats.streak++;
+        if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
+
+        playTone(600, 'sine', 0.15);
+        feedback.className = 'min-h-[24px] text-xs font-semibold text-emerald-700 dark:text-emerald-400';
+        feedback.innerHTML = `✓ Excel·lent! Resposta correcta.`;
+      } else {
+        stats.incorrect++;
+        stats.streak = 0;
+        playTone(220, 'sawtooth', 0.25);
+        feedback.className = 'min-h-[24px] text-xs font-semibold text-rose-700 dark:text-rose-400';
+        feedback.innerHTML = `✗ Incorrecte. La resposta correcta és **${expected}**.${warningNote}`;
+
+        mistakes.push({
+          element: currentElement,
+          userAnswer: userVal,
+          correctAnswer: expected,
+          questionType: currentQuestionType
+        });
+        updateMistakesCountUI();
+      }
+
+      document.getElementById('score-correct').textContent = stats.correct;
+      document.getElementById('score-incorrect').textContent = stats.incorrect;
+      document.getElementById('score-streak').textContent = stats.streak;
+
+      btn.innerHTML = `<span>Següent</span><kbd class="hidden sm:inline-block bg-sky-700 px-1.5 py-0.5 rounded text-[10px] text-sky-100">Enter</kbd>`;
+      btn.className = 'bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm flex items-center gap-1.5 shrink-0 shadow-md';
+      
+      btn.focus();
+    }
+
+    function restartGameWithConfirmation() {
+      const hasProgress = stats.correct > 0 || stats.incorrect > 0 || mistakes.length > 0;
+      if (hasProgress) {
+        const confirmed = confirm("Vols reiniciar l'examen i esborrar totes les puntuacions i errades?");
+        if (!confirmed) return;
+      }
+      restartGame();
+    }
+
+    function restartGame() {
+      stats = { correct: 0, incorrect: 0, streak: 0, maxStreak: 0 };
+      mistakes = [];
+
+      document.getElementById('score-correct').textContent = '0';
+      document.getElementById('score-incorrect').textContent = '0';
+      document.getElementById('score-streak').textContent = '0';
+      updateMistakesCountUI();
+
+      const statusBox = document.getElementById('send-status-box');
+      if (statusBox) statusBox.classList.add('hidden');
+
+      const btnSend = document.getElementById('btn-send-mail');
+      if (btnSend) {
+        btnSend.disabled = false;
+        btnSend.classList.remove('opacity-50');
+      }
+
+      initQuestionQueue();
+      nextQuestion();
+    }
+
+    function updateMistakesCountUI() {
+      document.getElementById('mistakes-count-label').textContent = `Errades (${mistakes.length})`;
+    }
+
+    function openMistakesModal() {
+      const modal = document.getElementById('mistakes-modal');
+      const list = document.getElementById('mistakes-list');
+      list.innerHTML = '';
+
+      if (mistakes.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-8 flex flex-col items-center gap-2">
+            <span class="text-2xl">🎉</span>
+            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">No has comès cap errada en aquest examen!</p>
+          </div>
+        `;
+      } else {
+        mistakes.forEach((item, index) => {
+          const div = document.createElement('div');
+          div.className = 'bg-slate-50 dark:bg-slate-900/80 p-3 rounded-lg border border-slate-200 dark:border-slate-700 flex justify-between items-center text-xs gap-2';
+          
+          const promptDesc = item.questionType === 'sym-name' 
+            ? `Nom de <strong class="text-sky-700 dark:text-sky-400">${item.element.symbol}</strong> (Z=${item.element.z})` 
+            : `Símbol de <strong class="text-sky-700 dark:text-sky-400">${item.element.name}</strong> (Z=${item.element.z})`;
+          
+          div.innerHTML = `
+            <div>
+              <p class="text-slate-800 dark:text-slate-200 font-medium">${index + 1}. ${promptDesc}</p>
+              <p class="text-rose-600 dark:text-rose-400 text-[11px] mt-0.5">La teva resposta: <span class="line-through opacity-80">${item.userAnswer}</span></p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-emerald-700 dark:text-emerald-300 font-bold bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 rounded-md text-[11px]">
+                ${item.correctAnswer}
+              </span>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeMistakesModal() {
+      document.getElementById('mistakes-modal').classList.add('hidden');
+    }
+
+    function showFinalReportModal() {
+      const modal = document.getElementById('final-report-modal');
+      const headerInput = document.getElementById('student-name-input');
+      const modalInput = document.getElementById('modal-student-name-input');
+
+      modalInput.value = headerInput.value.trim();
+
+      const now = new Date();
+      const timestampDisplay = now.toLocaleString('ca-ES', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+      });
+
+      const modeNames = {
+        'sym-name': 'Examen: Símbol ➔ Nom',
+        'name-sym': 'Examen: Nom ➔ Símbol'
+      };
+
+      const totalQuestions = stats.correct + stats.incorrect;
+      const accuracy = totalQuestions > 0 ? Math.round((stats.correct / totalQuestions) * 100) : 0;
+
+      document.getElementById('report-timestamp').textContent = timestampDisplay;
+      document.getElementById('report-mode').textContent = modeNames[currentMode] || currentMode;
+      document.getElementById('report-correct').textContent = stats.correct;
+      document.getElementById('report-incorrect').textContent = stats.incorrect;
+      document.getElementById('report-max-streak').textContent = `${stats.maxStreak} 🔥`;
+      document.getElementById('report-accuracy').textContent = `${accuracy}%`;
+
+      modal.classList.remove('hidden');
+
+      if (!modalInput.value) {
+        setTimeout(() => modalInput.focus(), 100);
+      }
+    }
+
+    function closeFinalReportModal() {
+      document.getElementById('final-report-modal').classList.add('hidden');
+    }
+
+    async function getClientIP() {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+      } catch (err) {
+        console.warn("No s'ha pogut obtenir la IP del client:", err);
+        return "IP Desconeguda";
+      }
+    }
+
+    function formatMistakesForText(mistakesArray) {
+      if (!mistakesArray || mistakesArray.length === 0) {
+        return "Cap error comès.";
+      }
+
+      return mistakesArray.map((m, idx) => {
+        const detail = m.questionType === 'sym-name' 
+          ? `Símbol: ${m.element.symbol} (Z = ${m.element.z})` 
+          : `Element: ${m.element.name} (Z = ${m.element.z})`;
+        return `[${idx + 1}] ${detail} | Resposta alumne/a: "${m.userAnswer}" | Esperat: "${m.correctAnswer}"`;
+      }).join('\n');
+    }
+
+    async function sendExamToGoogleSheets() {
+      const modalInput = document.getElementById('modal-student-name-input');
+      const codeInput = document.getElementById('modal-exam-code-input');
+      
+      const studentName = modalInput ? modalInput.value.trim() : '';
+      const examCode = codeInput ? codeInput.value.trim() : '';
+      const statusBox = document.getElementById('send-status-box');
+      const btnSend = document.getElementById('btn-send-mail');
+
+      if (!studentName) {
+        alert("Per favor, escriu el teu nom a la casella de l'alumne/a abans d'enviar l'examen.");
+        if (modalInput) modalInput.focus();
+        return;
+      }
+
+      if (!examCode || examCode.length !== 4 || isNaN(examCode)) {
+        alert("Per favor, introdueix el codi de 4 xifres indicat pel professorat a l'aula.");
+        if (codeInput) codeInput.focus();
+        return;
+      }
+
+      document.getElementById('student-name-input').value = studentName;
+
+      btnSend.disabled = true;
+      btnSend.classList.add('opacity-50');
+      statusBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800';
+      statusBox.textContent = "Obtenint IP d'origen i enviant examen...";
+      statusBox.classList.remove('hidden');
+
+      const clientIp = await getClientIP();
+
+      const totalQuestions = stats.correct + stats.incorrect;
+      const accuracy = totalQuestions > 0 ? Math.round((stats.correct / totalQuestions) * 100) : 0;
+      const mistakesFormatted = formatMistakesForText(mistakes);
+
+      const payload = {
+        studentName: studentName,
+        examCode: examCode,
+        clientIp: clientIp,
+        examType: currentMode === 'sym-name' ? 'Símbol a Nom' : 'Nom a Símbol',
+        correct: stats.correct,
+        incorrect: stats.incorrect,
+        maxStreak: stats.maxStreak,
+        accuracy: accuracy,
+        mistakes: mistakesFormatted
+      };
+
+      try {
+        await fetch(GOOGLE_SCRIPT_WEBAPP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        statusBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800';
+        statusBox.textContent = `✓ Examen enviat amb èxit! IP (${clientIp}) i codi d'aula (${examCode}) enregistrats al full de càlcul.`;
+      } catch (error) {
+        console.error("Error d'enviament:", error);
+        statusBox.className = 'p-3 rounded-lg text-xs font-semibold text-center bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800';
+        statusBox.textContent = "✗ No s'ha pogut enviar l'examen. Comprova la connexió a internet.";
+        btnSend.disabled = false;
+        btnSend.classList.remove('opacity-50');
+      }
+    }
+
+    function setupEventListeners() {
+      const input = document.getElementById('user-input');
+      
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleUserSubmit();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && gameState === 'feedback') {
+          e.preventDefault();
+          handleUserSubmit();
+        }
+        if (e.key === 'Escape') {
+          closeMistakesModal();
+          closeFinalReportModal();
+        }
+      });
+    }
+
+    function playTone(freq, type, duration) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+  </script>
+</body>
+</html>
