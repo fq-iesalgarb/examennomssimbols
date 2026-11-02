@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ca" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examen: Elements Quotidians — IES Algarb</title>
+  
+  <!-- Icona personalitzada -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Tailwind CSS per a disseny adaptatiu i mode fosc -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+
+  <!-- Font Lexend per a la màxima llegibilitat pedagògica -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- KaTeX per a la renderització formal de símbols i formulació científica -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <style>
+    * { font-family: 'Lexend', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
+
+  <!-- MODAL INICIAL OBLIGATORI D'IDENTIFICACIÓ DE L'ALUMNE -->
+  <div id="studentModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-2xl border border-indigo-100 dark:border-slate-700 space-y-6">
+      
+      <div class="text-center space-y-2">
+        <span class="text-4xl">🧪</span>
+        <h2 class="text-xl font-extrabold text-indigo-900 dark:text-indigo-300">IES Algarb</h2>
+        <p class="text-sm font-semibold text-slate-600 dark:text-slate-400">Examen: Els Elements de la Vida Quotidiana</p>
+      </div>
+
+      <form id="studentForm" onsubmit="startExam(event)" class="space-y-4">
+        <div>
+          <label for="inputNom" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+            Nom i Cognoms de l'alumne/a *
+          </label>
+          <input type="text" id="inputNom" required placeholder="Ex. Maria Garcia Torres"
+            class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none">
+        </div>
+
+        <div>
+          <label for="inputCodi" class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+            Codi d'aula (4 dígits numèrics) *
+          </label>
+          <input type="text" id="inputCodi" required pattern="\d{4}" maxlength="4" placeholder="Ex. 3012"
+            class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm font-medium outline-none tracking-widest text-center">
+        </div>
+
+        <div id="modalError" class="hidden text-xs font-bold text-rose-500 text-center">
+          Per favor, emplena tots els camps correctament (el codi ha de tenir exactament 4 xifres).
+        </div>
+
+        <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-xl shadow-lg transition">
+          Començar la prova ➔
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CAPÇALERA AMB NOM DEL CENTRE I COMMUTADOR DE MODE FOSC -->
+  <header class="bg-indigo-900 dark:bg-slate-950 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div>
+        <h1 class="text-base sm:text-lg font-black tracking-tight text-amber-300">IES Algarb</h1>
+        <p class="text-xs text-indigo-200 dark:text-slate-400">Avaluació de Química — 3r ESO</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Informació de l'alumne actiu -->
+        <div id="userInfoHeader" class="hidden text-xs text-right bg-indigo-950/80 dark:bg-slate-900 px-3 py-1.5 rounded-xl border border-indigo-700/60 dark:border-slate-800">
+          <div id="headerNom" class="font-bold text-indigo-100"></div>
+          <div id="headerCodi" class="text-indigo-300 dark:text-slate-400 text-[10px]"></div>
+        </div>
+
+        <!-- Botó Mode Lluminós / Fosc -->
+        <button onclick="toggleDarkMode()" id="btnDarkMode" type="button" class="px-3 py-1.5 text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl transition shadow flex items-center gap-1.5">
+          <span id="darkIcon">🌙</span>
+          <span id="darkText">Mode Fosc</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTINGUT PRINCIPAL DE L'EXAMEN -->
+  <main class="flex-grow max-w-3xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
+
+    <!-- SECCIÓ DE PREGUNTES I NAVEGACIÓ -->
+    <div id="examContainer" class="hidden bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700 space-y-6">
+      
+      <!-- Barra de Progrés i Mapa de Navegació de Preguntes -->
+      <div class="space-y-4 border-b border-slate-100 dark:border-slate-700 pb-4">
+        <div class="flex justify-between items-center text-xs font-bold">
+          <span id="partTitle" class="px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 uppercase tracking-wider">
+            Part 1: Nom a partir del símbol
+          </span>
+          <span id="progressText" class="text-slate-500 dark:text-slate-400">Pregunta 1 / 20</span>
+        </div>
+
+        <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+          <div id="progressBar" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+        </div>
+
+        <!-- Selector ràpid per anar directament a qualsevol pregunta -->
+        <div class="space-y-1">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex justify-between">
+            <span>Mapa de preguntes (fes clic per revisar):</span>
+            <span id="answeredCount" class="text-indigo-600 dark:text-indigo-400">Completades: 0/20</span>
+          </div>
+          <div id="questionGrid" class="flex flex-wrap gap-1.5 pt-1"></div>
+        </div>
+      </div>
+
+      <!-- AVÍS MAJÚSCULES/MINÚSCULES (Només Part 2) -->
+      <div id="warningPart2" class="hidden p-4 bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 text-amber-900 dark:text-amber-200 text-xs sm:text-sm rounded-r-2xl space-y-1">
+        <p class="font-bold">⚠️ Norma oficial per als símbols químics:</p>
+        <p>• Una sola lletra: en <strong>MAJÚSCULA</strong> (ex: <span class="katex-inline" data-formula="H"></span>, <span class="katex-inline" data-formula="O"></span>).</p>
+        <p>• Dues lletres: la primera en <strong>MAJÚSCULA</strong> i la segona en <strong>minúscula</strong> (ex: <span class="katex-inline" data-formula="\text{Ca}"></span>, <span class="katex-inline" data-formula="\text{Fe}"></span>).</p>
+      </div>
+
+      <!-- Caixa de Pregunta i Resposta -->
+      <form onsubmit="handleFormNext(event)" class="space-y-4">
+        <div class="p-6 bg-slate-50 dark:bg-slate-900/70 rounded-2xl border border-slate-200 dark:border-slate-700 text-center space-y-2">
+          <span class="text-xs uppercase font-extrabold tracking-wider text-slate-400" id="promptLabel">Escriu el nom de l'element:</span>
+          <div id="questionPrompt" class="text-4xl font-black text-indigo-900 dark:text-indigo-300 py-2"></div>
+        </div>
+
+        <div>
+          <input type="text" id="answerInput" autocomplete="off" oninput="saveCurrentAnswer()" placeholder="La teva resposta..."
+            class="w-full px-5 py-4 text-base font-bold text-center bg-white dark:bg-slate-900 border-2 border-indigo-200 dark:border-slate-700 rounded-2xl focus:border-indigo-600 focus:outline-none text-slate-900 dark:text-slate-100">
+        </div>
+
+        <!-- Botons de Navegació Bidireccional -->
+        <div class="flex items-center gap-3 pt-2">
+          <button id="btnPrev" type="button" onclick="navigateQuestion(-1)" class="w-1/2 py-3.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-extrabold rounded-2xl transition text-xs sm:text-sm flex items-center justify-center gap-2">
+            ⬅️ Anterior
+          </button>
+          
+          <button id="btnNext" type="submit" class="w-1/2 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-2xl shadow transition text-xs sm:text-sm flex items-center justify-center gap-2">
+            Següent ➔
+          </button>
+          
+          <button id="btnSubmit" type="button" onclick="confirmFinishExam()" class="hidden w-1/2 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl shadow transition text-xs sm:text-sm flex items-center justify-center gap-2">
+            Finalitzar i Enviar 🏁
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+    <!-- PANTALLA FINAL / ESTAT D'ENVIAMENT DE RESULTATS -->
+    <div id="resultContainer" class="hidden bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700 text-center space-y-6">
+      <div class="text-6xl">🏁</div>
+      
+      <div class="space-y-2">
+        <h2 class="text-2xl font-black text-slate-900 dark:text-slate-100">Examen completat!</h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Els teus resultats s'han avaluat i enviat al professorat.</p>
+      </div>
+
+      <!-- Caixa de Qualificació -->
+      <div class="p-6 bg-indigo-50 dark:bg-indigo-950/40 rounded-3xl border border-indigo-100 dark:border-indigo-900 space-y-3">
+        <div class="text-xs uppercase font-bold tracking-wider text-indigo-600 dark:text-indigo-400">Qualificació Final</div>
+        <div id="finalGrade" class="text-5xl font-black text-indigo-900 dark:text-indigo-200">0 / 10</div>
+        
+        <div class="flex justify-center gap-6 pt-2 text-xs font-bold">
+          <span class="text-emerald-600 dark:text-emerald-400">Encerts: <strong id="finalScoreCorrect">0</strong></span>
+          <span class="text-rose-600 dark:text-rose-400">Errades: <strong id="finalScoreErrors">0</strong></span>
+        </div>
+      </div>
+
+      <!-- Estat de la connexió amb Google Sheets -->
+      <div id="sendingStatus" class="p-4 rounded-2xl text-xs font-bold bg-slate-100 dark:bg-slate-900 flex flex-col items-center justify-center gap-2">
+        <span class="animate-pulse">🔄 Enviant resultats al full de càlcul de l'IES Algarb...</span>
+      </div>
+
+      <!-- Detall Didàctic d'Errades -->
+      <div id="errorDetailsSection" class="hidden text-left space-y-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Revisió de preguntes fallades:</h3>
+        <div id="errorList" class="space-y-2 text-xs font-medium max-h-60 overflow-y-auto pr-1"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    /* ==========================================================================
+       DADES EXACTES DELS 20 ELEMENTS DE LA PÀGINA D'ORIGEN
+       ========================================================================== */
+    const ELEMENTS = [
+      { symbol: 'H', name: 'Hidrogen' },
+      { symbol: 'O', name: 'Oxigen' },
+      { symbol: 'C', name: 'Carboni' },
+      { symbol: 'N', name: 'Nitrogen' },
+      { symbol: 'P', name: 'Fòsfor' },
+      { symbol: 'S', name: 'Sofre' },
+      { symbol: 'Ca', name: 'Calci' },
+      { symbol: 'Fe', name: 'Ferro' },
+      { symbol: 'Na', name: 'Sodi' },
+      { symbol: 'K', name: 'Potassi' },
+      { symbol: 'Cl', name: 'Clor' },
+      { symbol: 'F', name: 'Fluor' },
+      { symbol: 'Mg', name: 'Magnesi' },
+      { symbol: 'Au', name: 'Or' },
+      { symbol: 'Ag', name: 'Plata' },
+      { symbol: 'Cu', name: 'Coure' },
+      { symbol: 'Al', name: 'Alumini' },
+      { symbol: 'Li', name: 'Liti' },
+      { symbol: 'Si', name: 'Silici' },
+      { symbol: 'Pb', name: 'Plom' }
+    ];
+
+    /* ==========================================================================
+       FUNCIONS D'INVOLUCRACIÓ KATEX (mInline i mBlock)
+       ========================================================================== */
+    function mInline(latex) {
+      return katex.renderToString(latex, { displayMode: false, throwOnError: false });
+    }
+
+    function mBlock(latex) {
+      return katex.renderToString(latex, { displayMode: true, throwOnError: false });
+    }
+
+    function renderKaTeXElements() {
+      document.querySelectorAll('.katex-inline').forEach(el => {
+        const formula = el.getAttribute('data-formula');
+        if (formula) el.innerHTML = mInline(formula);
+      });
+    }
+
+    /* ==========================================================================
+       ESTAT DE L'EXAMEN I RECEPTOR DE RESPOSTES
+       ========================================================================== */
+    let studentNom = '';
+    let studentCodi = '';
+    let examQuestions = [];
+    let userAnswers = []; // Emmagatzema totes les respostes de l'alumnat
+    let currentIndex = 0;
+    let userIP = 'Desconeguda';
+
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzygUGoYMDsYEpqNaMDnZoYkoR5m10a3GTmJWH09GAv7xVZTc7cE37MMDiWJSf-ZvGM/exec';
+
+    /* Obtenir la IP de l'alumne */
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => { if (data.ip) userIP = data.ip; })
+      .catch(() => { userIP = 'Privada/No detectada'; });
+
+    /* COMMUTADOR DE MODE FOSC / LLUMINÓS */
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.getElementById('darkIcon').innerText = isDark ? '☀️' : '🌙';
+      document.getElementById('darkText').innerText = isDark ? 'Mode Lluminós' : 'Mode Fosc';
+    }
+
+    /* INICI DE LA PROVA */
+    function startExam(e) {
+      e.preventDefault();
+      const nomInput = document.getElementById('inputNom').value.trim();
+      const codiInput = document.getElementById('inputCodi').value.trim();
+      const errorBox = document.getElementById('modalError');
+
+      if (!nomInput || !/^\d{4}$/.test(codiInput)) {
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      studentNom = nomInput;
+      studentCodi = codiInput;
+
+      document.getElementById('studentModal').classList.add('hidden');
+      document.getElementById('userInfoHeader').classList.remove('hidden');
+      document.getElementById('headerNom').innerText = studentNom;
+      document.getElementById('headerCodi').innerText = `Aula: ${studentCodi}`;
+      document.getElementById('examContainer').classList.remove('hidden');
+
+      prepareQuestions();
+      renderQuestionGrid();
+      renderCurrentQuestion();
+      renderKaTeXElements();
+    }
+
+    /* PREPARACIÓ DE PREGUNTES */
+    function prepareQuestions() {
+      const shuffled = [...ELEMENTS].sort(() => 0.5 - Math.random());
+      
+      const part1 = shuffled.slice(0, 10).map(el => ({
+        part: 1,
+        element: el,
+        prompt: el.symbol,
+        correctAnswer: el.name
+      }));
+
+      const part2 = shuffled.slice(10, 20).map(el => ({
+        part: 2,
+        element: el,
+        prompt: el.name,
+        correctAnswer: el.symbol
+      }));
+
+      examQuestions = [...part1, ...part2];
+      userAnswers = new Array(examQuestions.length).fill('');
+      currentIndex = 0;
+    }
+
+    /* MAPA NUMÈRIC DE PREGUNTES PER A NAVEGACIÓ DIRECTA */
+    function renderQuestionGrid() {
+      const grid = document.getElementById('questionGrid');
+      grid.innerHTML = examQuestions.map((_, idx) => `
+        <button onclick="jumpToQuestion(${idx})" id="qGridBtn-${idx}" type="button"
+          class="w-7 h-7 text-xs font-bold rounded-lg border flex items-center justify-center transition bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300">
+          ${idx + 1}
+        </button>
+      `).join('');
+    }
+
+    function updateQuestionGridStatus() {
+      let answeredCount = 0;
+      examQuestions.forEach((_, idx) => {
+        const btn = document.getElementById(`qGridBtn-${idx}`);
+        const hasAnswer = userAnswers[idx] && userAnswers[idx].trim() !== '';
+        
+        if (hasAnswer) answeredCount++;
+
+        let classes = "w-7 h-7 text-xs font-extrabold rounded-lg border flex items-center justify-center transition ";
+        
+        if (idx === currentIndex) {
+          classes += "ring-2 ring-indigo-500 border-indigo-600 bg-indigo-600 text-white";
+        } else if (hasAnswer) {
+          classes += "bg-emerald-100 dark:bg-emerald-950 border-emerald-400 text-emerald-800 dark:text-emerald-300";
+        } else {
+          classes += "bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300";
+        }
+
+        if (btn) btn.className = classes;
+      });
+
+      document.getElementById('answeredCount').innerText = `Completades: ${answeredCount}/${examQuestions.length}`;
+    }
+
+    /* GESTIÓ DE NAVEGACIÓ I DESA DE RESPOSTES */
+    function saveCurrentAnswer() {
+      const val = document.getElementById('answerInput').value;
+      userAnswers[currentIndex] = val;
+      updateQuestionGridStatus();
+    }
+
+    function jumpToQuestion(idx) {
+      saveCurrentAnswer();
+      currentIndex = idx;
+      renderCurrentQuestion();
+    }
+
+    function navigateQuestion(delta) {
+      saveCurrentAnswer();
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < examQuestions.length) {
+        currentIndex = newIndex;
+        renderCurrentQuestion();
+      }
+    }
+
+    function handleFormNext(e) {
+      e.preventDefault();
+      if (currentIndex < examQuestions.length - 1) {
+        navigateQuestion(1);
+      } else {
+        confirmFinishExam();
+      }
+    }
+
+    function renderCurrentQuestion() {
+      const q = examQuestions[currentIndex];
+      const partTitle = document.getElementById('partTitle');
+      const warningPart2 = document.getElementById('warningPart2');
+      const promptLabel = document.getElementById('promptLabel');
+      const questionPrompt = document.getElementById('questionPrompt');
+      const answerInput = document.getElementById('answerInput');
+
+      document.getElementById('progressText').innerText = `Pregunta ${currentIndex + 1} / ${examQuestions.length}`;
+      document.getElementById('progressBar').style.width = `${((currentIndex + 1) / examQuestions.length) * 100}%`;
+
+      // Cargar la resposta guardada prèviament si existeix
+      answerInput.value = userAnswers[currentIndex] || '';
+      answerInput.focus();
+
+      if (q.part === 1) {
+        partTitle.innerText = "Part 1: Nom a partir del Símbol";
+        warningPart2.classList.add('hidden');
+        promptLabel.innerText = "Escriu el nom de l'element en català:";
+        questionPrompt.innerHTML = mInline(q.prompt);
+      } else {
+        partTitle.innerText = "Part 2: Símbol a partir del Nom";
+        warningPart2.classList.remove('hidden');
+        promptLabel.innerText = "Escriu el símbol químic correcte:";
+        questionPrompt.innerText = q.prompt;
+      }
+
+      // Visibilitat dels botons segons la posició
+      document.getElementById('btnPrev').style.visibility = (currentIndex === 0) ? 'hidden' : 'visible';
+      
+      const btnNext = document.getElementById('btnNext');
+      const btnSubmit = document.getElementById('btnSubmit');
+
+      if (currentIndex === examQuestions.length - 1) {
+        btnNext.classList.add('hidden');
+        btnSubmit.classList.remove('hidden');
+      } else {
+        btnNext.classList.remove('hidden');
+        btnSubmit.classList.add('hidden');
+      }
+
+      updateQuestionGridStatus();
+    }
+
+    /* NORMALITZADOR DE TEXT EN CATALÀ */
+    function normalizeCatalan(text) {
+      return text.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    /* CONFIRMACIÓ I AVALUACIÓ DE L'EXAMEN */
+    function confirmFinishExam() {
+      saveCurrentAnswer();
+      
+      const unanswered = userAnswers.filter(a => !a || a.trim() === '').length;
+      if (unanswered > 0) {
+        if (!confirm(`Tens ${unanswered} pregunta/es sense respondre. Vols lliurar l'examen igualment?`)) {
+          return;
+        }
+      } else {
+        if (!confirm("Estàs segur/a que vols finalitzar i enviar la prova?")) {
+          return;
+        }
+      }
+
+      evaluateAndSubmit();
+    }
+
+    function evaluateAndSubmit() {
+      document.getElementById('examContainer').classList.add('hidden');
+      document.getElementById('resultContainer').classList.remove('hidden');
+
+      let encerts = 0;
+      let errades = 0;
+      let erradesDetails = [];
+
+      examQuestions.forEach((q, idx) => {
+        const userAns = (userAnswers[idx] || '').trim();
+        let isCorrect = false;
+
+        if (q.part === 1) {
+          isCorrect = (normalizeCatalan(userAns) === normalizeCatalan(q.correctAnswer));
+        } else {
+          isCorrect = (userAns === q.correctAnswer);
+        }
+
+        if (isCorrect) {
+          encerts++;
+        } else {
+          errades++;
+          erradesDetails.push({
+            num: idx + 1,
+            part: q.part,
+            pregunta: q.prompt,
+            respostaUsuari: userAns || '(en blanc)',
+            respostaCorrecta: q.correctAnswer
+          });
+        }
+      });
+
+      const total = examQuestions.length;
+      const grade = ((encerts / total) * 10).toFixed(1);
+
+      document.getElementById('finalGrade').innerText = `${grade} / 10`;
+      document.getElementById('finalScoreCorrect').innerText = encerts;
+      document.getElementById('finalScoreErrors').innerText = errades;
+
+      if (erradesDetails.length > 0) {
+        const errorList = document.getElementById('errorList');
+        errorList.innerHTML = erradesDetails.map(e => `
+          <div class="p-3 bg-rose-50 dark:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200">
+            <strong>Pregunta ${e.num} (${e.part === 1 ? 'Símbol ' + e.pregunta : 'Element ' + e.pregunta}):</strong><br>
+            Teva resposta: <span class="line-through font-bold">${e.respostaUsuari}</span> | 
+            Correcta: <strong class="text-emerald-700 dark:text-emerald-300">${e.respostaCorrecta}</strong>
+          </div>
+        `).join('');
+        document.getElementById('errorDetailsSection').classList.remove('hidden');
+      }
+
+      const detallStr = erradesDetails.length === 0 
+        ? "Sense errades (100% encerts)" 
+        : erradesDetails.map(e => `[P${e.num}: ${e.pregunta} -> Dif: ${e.respostaUsuari} (Corr: ${e.respostaCorrecta})]`).join('; ');
+
+      sendDataToGoogleSheets(grade, encerts, errades, detallStr);
+    }
+
+    /* ENVIAMENT HTTP A GOOGLE APPS SCRIPT */
+    function sendDataToGoogleSheets(grade, encerts, errades, detall) {
+      const statusBox = document.getElementById('sendingStatus');
+
+      const params = new URLSearchParams();
+      params.append('pestanya', 'Elements_quotidians');
+      params.append('hora', new Date().toLocaleString('ca-ES'));
+      params.append('nom', studentNom);
+      params.append('codi', studentCodi);
+      params.append('ip', userIP);
+      params.append('encerts', encerts);
+      params.append('errades', errades);
+      params.append('qualificacio', grade);
+      params.append('detallErrades', detall);
+
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+      })
+      .then(() => {
+        statusBox.className = "p-4 rounded-2xl text-xs font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800";
+        statusBox.innerHTML = "✅ Resultats registrats correctament a la pestanya 'Elements_quotidians' del full de càlcul de l'IES Algarb!";
+      })
+      .catch(err => {
+        statusBox.className = "p-4 rounded-2xl text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300";
+        statusBox.innerHTML = `⚠️ Error de connexió en enviar les dades.<br><button onclick="sendDataToGoogleSheets('${grade}', ${encerts}, ${errades}, '${detall}')" class="mt-2 px-3 py-1 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition">Tornar a intentar l'enviament</button>`;
+      });
+    }
+
+    window.onload = function() {
+      renderKaTeXElements();
+    };
+  </script>
+</body>
+</html>
